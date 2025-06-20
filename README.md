@@ -1,6 +1,6 @@
 # rice_diseases_classification
 
-project
+namanya juga hidup
 
 ## Getting Started
 
