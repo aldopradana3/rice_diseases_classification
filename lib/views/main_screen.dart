@@ -14,17 +14,19 @@ class MainPage extends StatefulWidget {
   State<MainPage> createState() => MainPageState();
 }
 
-
+// Variabel untuk melacak halaman/tab yang sedang aktif
 class MainPageState extends State<MainPage> {
   int _selectedIndex = 0;
+  // Untuk akses kamera atau galeri
   final ImagePicker _picker = ImagePicker();
+  // Daftar halaman yang akan ditampilkan
   List<Widget> _pages = [];
-
+  // Fungsi untuk mengambil foto dari kamera
   Future<void> _ambilFotoDariKamera() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
       final path = pickedFile.path;
-
+      // Setelah foto diambil, halaman hasil scan diganti dan ditampilkan
       setState(() {
         _pages[2] = HasilScanPage(
           key: UniqueKey(), // Tambahkan ini
@@ -41,6 +43,7 @@ class MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+    // Inisialisasi daftar halaman
     _pages = [
       HomePage(onItemTapped: onItemTapped, onScanResult: (path, file) {
         setState(() {
@@ -59,7 +62,7 @@ class MainPageState extends State<MainPage> {
     ];
   }
 
-
+  // Fungsi untuk berpindah tab
   void onItemTapped(int index) {
     setState(() {
       _selectedIndex = index; // karena tombol tengah tidak dihitung
@@ -69,7 +72,9 @@ class MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // Tampilkan halaman sesuai tab aktif
       body: _pages[_selectedIndex],
+      // Bottom navigation bar dengan 2 tombol + floating button di tengah
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         child: Row(
@@ -131,7 +136,7 @@ class MainPageState extends State<MainPage> {
           ],
         ),
       ),
-
+      // Tombol kamera di tengah bottom bar
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: SizedBox(
         width: 7.h,  // lebar custom

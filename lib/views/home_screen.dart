@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'package:flutter/rendering.dart';
 import 'package:image_picker/image_picker.dart';
-
+// Halaman utama HomePage
 class HomePage extends StatefulWidget {
   final void Function(int index) onItemTapped;
   final void Function(String path, XFile pickedFile) onScanResult;
@@ -15,8 +15,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  // Inisialisasi ImagePicker
   final ImagePicker _picker = ImagePicker();
-
+ // Fungsi kapitalisasi tiap kata (untuk teks paragraf)
   String capitalizeEachWord(String text) {
     return text
         .split(' ')
@@ -25,7 +26,7 @@ class _HomePageState extends State<HomePage> {
             : '')
         .join(' ');
   }
-
+  // Fungsi untuk mengambil gambar dari galeri
   Future<void> _ambilFotoDariGaleri() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -42,6 +43,7 @@ class _HomePageState extends State<HomePage> {
     debugPaintSizeEnabled = false;
     return Stack(
       children: [
+        // Background rerumputan di bagian bawah
         Positioned(
           bottom: 0,
           left: 0,
@@ -52,12 +54,13 @@ class _HomePageState extends State<HomePage> {
             fit: BoxFit.fitWidth, // Tambahkan ini
           ),
         ),
-
+        // Konten utama halaman Home
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 2.h),
           child: Column(
             children: [
               SizedBox(height: 15.h,),
+              // Judul utama
               Center(
                 child: Text(
                   'Selamat Datang di Aplikasi Deteksi Penyakit Padi',
@@ -70,6 +73,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               SizedBox(height: 5.h,),
+              // Deskripsi aplikasi
               Center(
                 child: Text(
                   capitalizeEachWord(
@@ -85,6 +89,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               SizedBox(height: 6.h,),
+              // Petunjuk penggunaan
               Center(
                 child: Text(
                   capitalizeEachWord(
@@ -100,6 +105,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               SizedBox(height: 1.h,),
+              // Tombol Mulai Deteksi
               Center(
                 child: ElevatedButton(
                   onPressed: () {
@@ -125,6 +131,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               SizedBox(height: 1.5.h,),
+              // Tombol Riwayat Deteksi
               Center(
                 child: ElevatedButton(
                   onPressed: () {

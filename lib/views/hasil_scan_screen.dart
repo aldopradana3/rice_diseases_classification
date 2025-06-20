@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:convert';
 import 'package:rice_diseases_classification/main.dart';
 
+// Halaman hasil scan — menerima parameter imagePath, indexPenyakit, dan uploadGambar
 class HasilScanPage extends StatefulWidget {
   final String? imagePath;
   final int? indexPenyakit;
@@ -40,9 +41,11 @@ class _HasilScanPageState extends State<HasilScanPage> {
   void initState() {
     super.initState();
     _currentImagePath = widget.imagePath!;
+    // Jika upload baru
     if (widget.uploadGambar == "1") {
       _loadAndRunModel(widget.imagePath!, widget.imagePath2!);
       _currentXFile = widget.imagePath2!;
+      // Jika buka dari riwayat
     } else if (widget.uploadGambar == "0") {
       _isLoading = false;
       indexPenyakit = widget.indexPenyakit!;
@@ -50,6 +53,8 @@ class _HasilScanPageState extends State<HasilScanPage> {
     }
   }
 
+  // Fungsi untuk mengambil confidence dari local storage (shared_preferences)
+  // Digunakan kalau buka dari riwayat scan sebelumnya
   Future<void> _loadConfidenceFromLocal(String imagePath) async {
     final prefs = await SharedPreferences.getInstance();
     final existingJson = prefs.getStringList('scan_data') ?? [];
@@ -65,7 +70,8 @@ class _HasilScanPageState extends State<HasilScanPage> {
     }
   }
 
-
+  // Fungsi untuk mengambil gambar baru dari galeri
+  // Jika user klik "Ulangi Deteksi"
   Future<void> _ambilFotoDariGaleri() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
@@ -77,7 +83,8 @@ class _HasilScanPageState extends State<HasilScanPage> {
       await _loadAndRunModel(_currentImagePath, _currentXFile);
     }
   }
-
+  // Fungsi untuk menyimpan data hasil scan ke local storage
+  // Data yang disimpan: path gambar, index penyakit, confidence score
   Future<void> _simpanKeLokal(XFile? pickedFile, int detectedIndex, double confidence) async {
     if (pickedFile == null) return;
 
@@ -122,24 +129,26 @@ class _HasilScanPageState extends State<HasilScanPage> {
     'NPK seimbang sesuai kebutuhan varietas; tambah mikro bila defisiensi',
     'Seimbangkan N-K; pastikan P dan mikro; hindari N berlebih',
   ];
-
+  // Fungsi utama untuk load model TFLite dan melakukan proses klasifikasi
   Future<void> _loadAndRunModel(String imagePath, XFile imageXFile) async {
     try {
+      // Delay untuk memastikan load model tidak macet
       await Future.delayed(const Duration(milliseconds: 500));
-
+      // Load model TFLit
       final interpreter =
           await Interpreter.fromAsset('model/model_vgg19.tflite');
+      // Load label
       final labels = await FileUtil.loadLabels('assets/model/labels.txt');
-
+      // Ambil info input/output tensor
       final inputType = interpreter.getInputTensor(0).type;
       final outputShape = interpreter.getOutputTensor(0).shape;
       final outputType = interpreter.getOutputTensor(0).type;
-
+      // Proses resize dan normalisasi gambar
       final imageProcessor = ImageProcessorBuilder()
           .add(ResizeOp(224, 224, ResizeMethod.BILINEAR))
           .add(NormalizeOp(0, 255))
           .build();
-
+      // Load file gambar
       final imageBytes = await File(imagePath).readAsBytes();
       final image = img.decodeImage(imageBytes)!;
 
@@ -147,31 +156,31 @@ class _HasilScanPageState extends State<HasilScanPage> {
       if (image.width > image.height) {
         rotatedImage = img.copyRotate(image, 90);
       }
-
+      // Load ke TensorImage
       final tensorImage = TensorImage(inputType);
       tensorImage.loadImage(rotatedImage);
       final processedImage = imageProcessor.process(tensorImage);
 
-
+      // Jalankan model
       final outputTensorBuffer =
           TensorBuffer.createFixedSize(outputShape, outputType);
       interpreter.run(processedImage.buffer, outputTensorBuffer.buffer);
-
+      // Ambil hasil output (probabilitas)
       final rawProb =
           TensorProcessorBuilder().build().process(outputTensorBuffer);
       final probs = rawProb.getDoubleList();
-
+      // Mapping label → confidence
       final Map<String, double> labeledProb = {};
       for (int i = 0; i < labels.length; i++) {
         labeledProb[labels[i]] = probs[i];
-      }
-
+      } 
+      // Urutkan, ambil yang confidence paling tinggi
       final sorted = labeledProb.entries.toList()
         ..sort((a, b) => b.value.compareTo(a.value));
 
       final topResult = sorted.first;
       final confidence = topResult.value * 100;
-
+      // Jika confidence > 65%, tampilkan hasil
       if (confidence >= 65.0) {
         final detectedIndex = judulPenyakit.indexWhere(
           (judul) => judul.toLowerCase().contains(topResult.key.toLowerCase()),
@@ -184,6 +193,7 @@ class _HasilScanPageState extends State<HasilScanPage> {
           });
           await _simpanKeLokal(imageXFile, detectedIndex, confidence);
         }
+      // Jika confidence < 65%, anggap gagal
       } else {
         setState(() {
           indexPenyakit = -1;
@@ -304,7 +314,8 @@ class _HasilScanPageState extends State<HasilScanPage> {
     );
   }
 }
-
+// Widget custom untuk expandable item (bisa buka/tutup)
+// Digunakan untuk: Hasil Deteksi, Rekomendasi Pupuk
 class MyExpandableItem extends StatefulWidget {
   final String judul;
   final String deskripsi;

@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:rice_diseases_classification/main.dart';
-
+// Widget untuk halaman Riwayat Deteksi
 class RiwayatPage extends StatefulWidget {
   final VoidCallback onBackToHome;
   final void Function(int index) onItemTapped;
@@ -36,9 +36,10 @@ class _RiwayatPageState extends State<RiwayatPage> {
   @override
   void initState() {
     super.initState();
-    ambilDataScan();
+    ambilDataScan(); // Ambil data riwayat saat halaman dibuka
   }
-
+  // Fungsi untuk mengambil list data scan dari local storage (SharedPreferences)
+  // Data diambil dari key 'scan_data'
   Future<void> ambilDataScan() async {
     final prefs = await SharedPreferences.getInstance();
     final existingJson = prefs.getStringList('scan_data') ?? [];
@@ -49,7 +50,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
       dataList = loadedData;
     });
   }
-
+  // Fungsi untuk menghapus semua data riwayat scan dari local storage
   Future<void> hapusSemuaDataScan() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('scan_data');
@@ -89,6 +90,7 @@ class _RiwayatPageState extends State<RiwayatPage> {
               SizedBox(
                 height: 2.h,
               ),
+              // Jika ada data, tampilkan tombol "Hapus Riwayat"
               if (dataList.isNotEmpty)
                 Column(
                   children: [

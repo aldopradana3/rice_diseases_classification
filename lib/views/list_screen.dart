@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:sizer/sizer.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-class ListPage extends StatefulWidget {
+// Halaman ListPage (menampilkan Panduan Penyakit Padi)class ListPage extends StatefulWidget {
   final VoidCallback onBackToHome;
 
   const ListPage({super.key, required this.onBackToHome});
@@ -13,6 +12,7 @@ class ListPage extends StatefulWidget {
 }
 
 class _ListPageState extends State<ListPage> {
+// List FAQ berisi nama penyakit + deskripsi lengkap
   final List<Map<String, String>> faqList = [
     {
       'judul': 'bacterial leaf blight',
@@ -100,6 +100,7 @@ Rekomendasi Pupuk: Seimbangkan N-K; pastikan P dan mikro; hindari N berlebih'''
   Widget build(BuildContext context) {
     debugPaintSizeEnabled = false;
     return WillPopScope(
+      // Handle tombol back → balik ke halaman Home
       onWillPop: () async {
         widget.onBackToHome();
         return false; // Jangan pop halaman, cukup ubah tab
@@ -120,6 +121,7 @@ Rekomendasi Pupuk: Seimbangkan N-K; pastikan P dan mikro; hindari N berlebih'''
             ),
           ),
           SizedBox(height: 2.h,),
+          // Daftar FAQ → ListView
           Expanded(
             child: ScrollConfiguration(
               behavior: ScrollConfiguration.of(context).copyWith(overscroll: false),
@@ -146,7 +148,7 @@ Rekomendasi Pupuk: Seimbangkan N-K; pastikan P dan mikro; hindari N berlebih'''
     );
   }
 }
-
+// Widget CustomExpansionTile (satu item FAQ)
 class CustomExpansionTile extends StatefulWidget {
   final Map<String, String> item;
 
@@ -178,7 +180,7 @@ class _CustomExpansionTileState extends State<CustomExpansionTile>
     _controller.dispose();
     super.dispose();
   }
-
+  // Saat tile di klik → expand/collapse
   void _handleTap() {
     setState(() {
       _isExpanded = !_isExpanded;
@@ -189,7 +191,7 @@ class _CustomExpansionTileState extends State<CustomExpansionTile>
       }
     });
   }
-
+  // Format deskripsi jadi paragraf dengan heading bold (gunakan ":" sbg pemisah)
   Widget _buildStyledDescription(String deskripsi) {
     final lines = deskripsi.trim().split('\n');
 
@@ -229,6 +231,7 @@ class _CustomExpansionTileState extends State<CustomExpansionTile>
       }).toList(),
     );
   }
+  // Capitalize setiap kata
   String capitalizeEachWord(String text) {
     return text
         .split(' ')
@@ -290,6 +293,7 @@ class _CustomExpansionTileState extends State<CustomExpansionTile>
             ),
           ),
         ),
+        // Konten deskripsi saat expanded
         AnimatedSize(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeInOut,
